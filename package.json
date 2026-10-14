@@ -1,0 +1,35 @@
+{
+  "name": "beatapi-bulk-apikey",
+  "version": "1.0.0",
+  "description": "mint BeatAPI keys — one fresh account per key, verified, any number",
+  "license": "MIT",
+  "type": "commonjs",
+  "bin": {
+    "beatapi-bulk-apikey": "cli.js",
+    "beatapi-bulk-apikey-launcher": "launcher.js"
+  },
+  "main": "cli.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node launcher.js",
+    "mint": "node cli.js"
+  },
+  "keywords": [
+    "api-key",
+    "bulk",
+    "register",
+    "launcher",
+    "beatapi",
+    "bulk",
+    "apikey"
+  ],
+  "files": [
+    "cli.js",
+    "launcher.js",
+    "proxy.js",
+    "README.md",
+    "LICENSE"
+  ]
+}
