@@ -19,7 +19,7 @@
 [![Models](https://img.shields.io/badge/models-43%20(%2B7%20free)-412991?style=for-the-badge)](https://beatapi.io/pricing)
 [![X](https://img.shields.io/badge/X-%40bigbullapp-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/bigbullapp)
 
-[🛠 Quick start](#-quick-start) · [✅ Verified](#-verified-working--every-key-is-tested) · [🤖 Models & free tier](#-models--free-tier) · [🔑 What one key gets you](#-what-one-key-gets-you) · [⚙️ Options](#️-cli-options) · [🛰️ Proxy](#️-behind-a-proxy) · [🐞 Issues](#-issues--updates)
+[🛠 Quick start](#-quick-start) · [✅ Verified](#-verified-working--every-key-is-tested) · [🤖 Models & free tier](#-models--free-tier) · [🔑 What one key gets you](#-what-one-key-gets-you) · [⚙️ Options](#️-options) · [🛰️ Proxy](#️-behind-a-proxy) · [🐞 Issues](#-issues--updates)
 
 </div>
 
