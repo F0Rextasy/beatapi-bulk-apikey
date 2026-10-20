@@ -5,6 +5,7 @@ keys.txt
 keys.json
 *.txt
 accounts.json
+*.accounts.json
 outputs/
 launcher.config.json
 .env

@@ -5,16 +5,16 @@
   "license": "MIT",
   "type": "commonjs",
   "bin": {
-    "beatapi-bulk-apikey": "cli.js",
-    "beatapi-bulk-apikey-launcher": "launcher.js"
+    "beatapi-bulk-apikey": "src/cli.js",
+    "beatapi-bulk-apikey-launcher": "src/launcher.js"
   },
-  "main": "cli.js",
+  "main": "src/cli.js",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "start": "node launcher.js",
-    "mint": "node cli.js"
+    "start": "node src/launcher.js",
+    "mint": "node src/cli.js"
   },
   "keywords": [
     "api-key",
@@ -22,13 +22,12 @@
     "register",
     "launcher",
     "beatapi",
-    "bulk",
     "apikey"
   ],
   "files": [
-    "cli.js",
-    "launcher.js",
-    "proxy.js",
+    "src/cli.js",
+    "src/launcher.js",
+    "src/proxy.js",
     "README.md",
     "LICENSE"
   ]
