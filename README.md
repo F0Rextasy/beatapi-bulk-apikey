@@ -139,7 +139,7 @@ node src/cli.js --count 30 --out keys.txt --proxy-file proxies.txt
 ```
   target 30 · have 0 · proxies 45
   workers   : 3
-  [1] someone@gmail.com · proxy 203.0.113.7:3128
+  [1] you [at] gmail.com · proxy 203.0.113.7:3128
       ✔ PSofZDzl…d4Cu (24.7s) usage=200
   …
   keys → keys.txt (30 line(s)) · accounts → keys.accounts.json

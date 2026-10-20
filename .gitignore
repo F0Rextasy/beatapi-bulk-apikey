@@ -1,5 +1,8 @@
 node_modules/
 
+# credential files — never committed (scanner gate: literal names)
+proxies.txt
+
 # generated material — never commit
 keys.txt
 keys.json
