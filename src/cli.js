@@ -336,6 +336,7 @@ async function verifyOnly(file, proxy) {
   }
   console.log(`  verifying ${keys.length} key(s) against GET /v1/usage …`);
   let good = 0;
+  const dead = [];
   for (const key of keys) {
     let result;
     try {
@@ -344,9 +345,14 @@ async function verifyOnly(file, proxy) {
       result = { ok: false, status: `network: ${String(err.message).slice(0, 40)}` };
     }
     if (result.ok) good++;
+    else if (/\b(401|402|403)\b/.test(String(result.status))) dead.push(key);
     console.log(`    ${result.ok ? '✔' : '✘'} ${key.slice(0, 6)}…${key.slice(-4)}  ${result.status}`);
   }
   console.log(`  verified  : ${good}/${keys.length} key(s) answer 200`);
+  // The API own refusal (401/403) is a dead key: keys-dead.txt beside the file.
+  const deadFile = path.join(path.dirname(path.resolve(file)), `keys-dead.txt`);
+  fs.writeFileSync(deadFile, dead.join(`\n`) + (dead.length ? `\n` : ``));
+  console.log(`  dead keys : ${dead.length} -> ${deadFile}`);
   return good === keys.length ? 0 : 1;
 }
 
