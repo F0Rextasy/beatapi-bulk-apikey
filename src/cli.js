@@ -18,8 +18,8 @@
  * is waited out instead of burning the inbox.
  */
 const crypto = require('crypto');
-/** keys-dead.txt standard: `key<TAB>reason<TAB>ISO`, reason in 401|403|quota|ban.
- * A 429/5xx/transport failure is never a dead key — it answers null here. */
+/** keys-dead.txt standard: key \t reason \t ISO, reason in 401|403|quota|ban.
+ * 429/5xx/transport are transient (retry them — the same key may answer later): never dead. */
 function deadReason(status, text = '') {
   const s = `${status == null ? '' : status} ${text || ''}`;
   if (/\b429\b|rate.?limit|\b5\d\d\b|timeout|ECONNRESET|ECONNREFUSED|ETIMEDOUT|EHOSTUNREACH|transport|network/i.test(s)) return null;
