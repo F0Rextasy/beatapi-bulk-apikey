@@ -11,7 +11,7 @@
 
 # beatapi-bulk-apikey
 
-**Crea cuentas de BeatAPI en masa con claves API generadas automáticamente — inferencia compatible con OpenAI (43 modelos, 7 de nivel gratuito) + endpoint listo para 9Router.**
+**Crea cuentas de BeatAPI en masa con claves API autogeneradas — inferencia compatible con OpenAI (43 modelos, 7 de nivel gratuito) + endpoint listo para 9Router.**
 
 [![Node](https://img.shields.io/badge/Node-%E2%89%A518-3DA639?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
 [![Dependencies](https://img.shields.io/badge/dependencies-0-blue?style=for-the-badge)](#)
@@ -46,7 +46,7 @@
 | Buzón de registro | solo `gmail.com` / `qq.com` / `yahoo.com` / `icloud.com` — y los puntos se ignoran (`first.last@` es la misma dirección que `firstlast@`) |
 | La unidad que escala | **una cuenta = una clave** → `--count N` te da N cuentas, cada una con su propia ventana de modelos gratuitos y su propio saldo de créditos |
 
-**Los ids de los modelos de nivel gratuito**
+**Los ids de modelos del nivel gratuito**
 
 | Modelo | Notas |
 | --- | --- |
@@ -57,10 +57,10 @@
 | `gpt-6.1-sol-free` | id de la familia OpenAI |
 | `jev-1.13-free` | Jev |
 
-> 💡 Los importes y las ventanas los define BeatAPI y pueden cambiar (su página de precios también menciona un crédito de registro que alcanza 48 modelos, y los 7 modelos gratuitos funcionando "por tiempo limitado"). Vuelve a comprobar tu propio archivo en cualquier momento:
+> 💡 Los montos y las ventanas los define BeatAPI y pueden cambiar (su página de precios también menciona un crédito de registro que alcanza 48 modelos, y los 7 modelos gratuitos funcionando "por tiempo limitado"). Vuelve a comprobar tu propio archivo en cualquier momento:
 
 ```bash
-node cli.js --verify-only keys.txt   # re-check a whole list
+node src/cli.js --verify-only keys.txt   # re-check a whole list
 ```
 
 > 💡 El nivel gratuito lo define BeatAPI y puede cambiar. Consulta los números en vivo en [beatapi.io](https://beatapi.io) — y deja que la propia puerta de la herramienta decida:
@@ -111,9 +111,9 @@ cd beatapi-bulk-apikey
 printf 'http://127.0.0.1:8080\n' > proxies.txt
 
 # 2) go
-node launcher.js                              # interactive
+node src/launcher.js                          # interactive
 # or directly:
-node cli.js --count 30 --out keys.txt --proxy-file proxies.txt
+node src/cli.js --count 30 --out keys.txt --proxy-file proxies.txt
 ```
 
 `keys.txt` se escribe **solo** después de que `GET /v1/usage` responda 200 con la nueva clave, así que cada línea es una clave que se autenticó contra la propia API del proveedor.
@@ -121,10 +121,10 @@ node cli.js --count 30 --out keys.txt --proxy-file proxies.txt
 ### 🖱️ El lanzador
 
 ```bash
-node launcher.js
+node src/launcher.js
 ```
 
-Pregunta cuántas claves quieres, el archivo de salida, el prefijo del nombre de la clave, la pausa entre cuentas y un proxy / lista de proxies opcional, recuerda las respuestas en `launcher.config.json`, y luego ejecuta la herramienta. Menú: **1) Crear claves · 2) Verificar claves · 3) Ajustes · 4) Ayuda · q) Salir**.
+Pregunta cuántas claves quieres y qué lista de proxies usar, recuerda las respuestas en `launcher.config.json` y luego ejecuta la herramienta con los flags correctos. Menú: **1) Crear claves · 2) Verificar claves · 3) Ajustes · 4) Ayuda · 5) Conectar con 9Router · 6) Conectar con OmniRoute · q) Salir**.
 
 ## ✅ Verificado y funcionando — cada clave se prueba
 
@@ -132,7 +132,7 @@ Una clave llega a `keys.txt` solo después de que la propia API del proveedor re
 
 | Comprobación | Resultado |
 | --- | --- |
-| `GET https://api.beatapi.io/v1/usage` — ejecutado automáticamente para **cada** clave justo después de crearla | **HTTP 200**, `data.object: "usage"` |
+| `GET https://api.beatapi.io/v1/usage` — se ejecuta automáticamente para **cada** clave justo después de crearla | **HTTP 200**, `data.object: "usage"` |
 | Revisión de toda la lista con `--verify-only` (claves de cuentas distintas) | **8/8 → 200** (`PSofZD…d4Cu`, `25Mcg6…FLhU`, `FIBhQQ…3f2d`, `Due4H4…ISxD`, …) |
 | `POST https://api.beatapi.io/v1/chat/completions` en un modelo `-free` | **HTTP 200**, finalización real (`deepseek-v4.1-flash-free`) |
 | Modelo de pago en una cuenta nueva | `402 Insufficient balance` — la *clave* es válida, la *cuenta* necesita créditos |
@@ -142,7 +142,7 @@ Una clave llega a `keys.txt` solo después de que la propia API del proveedor re
 > **Controles de calidad.** Cada clave aquí pasó un `chat-200` en vivo antes de escribirse en `keys.txt`
 > (las claves muertas nunca se entregan). Las combinaciones del router siguen la misma regla a nivel de modelo: una entrada se
 > añade **solo si el modelo responde `chat-200` y puede llamar a herramientas** — un modelo sin soporte de herramientas,
-> una clave muerta o un proveedor muerto se descarta en lugar de añadirse. Vuelve a ejecutar el paso de verificación cuando quieras;
+> una clave muerta o un proveedor muerto se descarta en lugar de añadirse. Vuelve a ejecutar el paso de verificación en cualquier momento;
 > los fallos se reportan, nunca se ocultan.
 
 ## 🧭 Cómo funciona
@@ -166,14 +166,14 @@ inbox (one address per account)                                  a fresh address
 | revelación de clave | `POST /api/beat/account/keys/{id}/key` | la clave real — se muestra una vez |
 | prueba | `GET /v1/usage` | `200` significa que la clave está activa |
 
-**Dos notas del lado del proveedor que conviene saber de antemano.** La dirección de registro tiene que ser un buzón `gmail.com` / `qq.com` / `yahoo.com` / `icloud.com`, y los puntos se ignoran (`first.last@` es la misma dirección que `firstlast@`, que responde *"Email address is already in use"*) — pasa un buzón y quédate con su forma sin puntos. Y BeatAPI envía su propio correo de verificación: después de muchos registros en un día responde `550 You have reached your daily email sending quota`, lo que simplemente significa que los nuevos registros se reanudan al día siguiente — las claves que ya tienes siguen funcionando.
+**Dos notas del proveedor que conviene saber de antemano.** La dirección de registro tiene que ser un buzón `gmail.com` / `qq.com` / `yahoo.com` / `icloud.com`, y los puntos se ignoran (`first.last@` es la misma dirección que `firstlast@`, lo que responde *"Email address is already in use"*) — pasa un buzón y quédate con su forma sin puntos. Y BeatAPI envía su propio correo de verificación: tras muchos registros en un mismo día responde `550 You have reached your daily email sending quota`, lo que simplemente significa que los nuevos registros se reanudan al día siguiente — las claves que ya tienes siguen funcionando.
 
 ## ⚙️ Opciones de la CLI
 
 ```bash
-node cli.js --count 30 --out keys.txt --proxy-file proxies.txt
-node cli.js --verify-only keys.txt    # re-check a whole list
-node cli.js --help
+node src/cli.js --count 30 --out keys.txt --proxy-file proxies.txt
+node src/cli.js --verify-only keys.txt    # re-check a whole list
+node src/cli.js --help
 ```
 
 | Opción | Predeterminado | Significado |
@@ -193,33 +193,33 @@ Las claves que ya están en `--out` cuentan para `--count`, así que volver a ej
 
 ## 🛰️ Detrás de un proxy
 
-**Pon una salida delante de la ejecución.** Una cuenta por clave significa un registro por clave, y BeatAPI limita los registros por dirección (medido: *20 solicitudes / 20 minutos*) — rotar una lista de proxies le da a cada cuenta una ejecución limpia, y la herramienta espera a que pase un `429 … retry_after_seconds` en lugar de quemar la cuenta cuando el límite aún se dispara.
+**Pon una salida delante de la ejecución.** Una cuenta por clave significa un registro por clave, y BeatAPI limita los registros por dirección (medido: *20 solicitudes / 20 minutos*) — rotar una lista de proxies le da a cada cuenta una ejecución limpia, y la herramienta espera un `429 … retry_after_seconds` en lugar de quemar la cuenta cuando el límite aún se dispara.
 
 ```bash
-node cli.js --count 30 --out keys.txt --proxy-file proxies.txt   # one proxy per line, rotated
-node cli.js --count 1  --out keys.txt --proxy socks5://127.0.0.1:1080
+node src/cli.js --count 30 --out keys.txt --proxy-file proxies.txt   # one proxy per line, rotated
+node src/cli.js --count 1  --out keys.txt --proxy socks5://127.0.0.1:1080
 ```
 
 ## 📄 Archivos
 
 | Ruta | Contenido |
 | --- | --- |
-| `keys.txt` | claves verificadas, una por línea — ignorado por git, nunca confirmado |
+| `keys.txt` | claves verificadas, una por línea — ignorado por git, nunca se confirma |
 | `keys.accounts.json` | registros de cuentas (buzón / usuario / contraseña) — ignorado por git |
 | `proxies.txt` | tu grupo de salidas, un proxy por línea — ignorado por git |
 | `launcher.config.json` | lo que recuerda el lanzador — ignorado por git |
-| `cli.js` · `launcher.js` · `proxy.js` | la herramienta de creación, el menú interactivo y la rotación de proxies |
+| `src/cli.js` · `src/launcher.js` · `src/proxy.js` | la herramienta de creación, el menú interactivo y la rotación de proxies |
 
 ## 🔌 Conectar con 9Router
 
-[9Router](https://9router.com) es un router autoalojado compatible con OpenAI. BeatAPI sirve OpenAI puro en `https://api.beatapi.io/v1`, así que el conector registra **un nodo de proveedor `openai-compatible`** (prefijo `beatapi`) y adjunta cada clave de `keys.txt` como una conexión — `beatapi-001`, `beatapi-002`, … Volver a ejecutarlo es idempotente.
+[9Router](https://9router.com) es un router autoalojado y compatible con OpenAI. BeatAPI sirve OpenAI puro en `https://api.beatapi.io/v1`, así que el conector registra **un nodo de proveedor `openai-compatible`** (prefijo `beatapi`) y adjunta cada clave de `keys.txt` como una conexión — `beatapi-001`, `beatapi-002`, … Volver a ejecutarlo es idempotente.
 
 ```bash
 node src/connect-9router.js                    # every key in keys.txt
 node src/connect-9router.js --model <id>       # pin the connection's default model
 ```
 
-Valores predeterminados: `--base http://localhost:20128`, `--password 123456`, `--name "BeatAPI"`, `--prefix beatapi`, `--base-url https://api.beatapi.io/v1`, `--model deepseek-v4.1-flash-free`. Los modelos se sirven entonces como `beatapi/<model id>` — `beatapi/deepseek-v4.1-flash-free`, `beatapi/gemini-3.8-flash-free`, `beatapi/glm-5.3-free`, `beatapi/gpt-6.1-sol-free` — con balanceo de carga entre todas las conexiones:
+Predeterminados: `--base http://localhost:20128`, `--password 123456`, `--name "BeatAPI"`, `--prefix beatapi`, `--base-url https://api.beatapi.io/v1`, `--model deepseek-v4.1-flash-free`. Los modelos se sirven entonces como `beatapi/<model id>` — `beatapi/deepseek-v4.1-flash-free`, `beatapi/gemini-3.8-flash-free`, `beatapi/glm-5.3-free`, `beatapi/gpt-6.1-sol-free` — con balanceo de carga entre todas las conexiones:
 
 ```bash
 curl http://localhost:20128/v1/chat/completions \
@@ -230,14 +230,14 @@ curl http://localhost:20128/v1/chat/completions \
 
 ## 🔌 Conectar con OmniRoute
 
-[OmniRoute](https://omniroute.online) es un router autoalojado compatible con OpenAI. El conector hace el mismo trabajo allí — un nodo `openai-compatible` (prefijo `beatapi`), una conexión por clave en `keys.txt`:
+[OmniRoute](https://omniroute.online) es un router autoalojado y compatible con OpenAI. El conector hace el mismo trabajo allí — un nodo `openai-compatible` (prefijo `beatapi`), una conexión por cada clave de `keys.txt`:
 
 ```bash
 node src/connect-omniroute.js                  # every key in keys.txt
 node src/connect-omniroute.js --model <id>     # pin the connection's default model
 ```
 
-Valores predeterminados: `--base http://localhost:20128`, `--password 123456`, `--name "BeatAPI"`, `--prefix beatapi`, `--base-url https://api.beatapi.io/v1`, `--model deepseek-v4.1-flash-free`.
+Predeterminados: `--base http://localhost:20128`, `--password 123456`, `--name "BeatAPI"`, `--prefix beatapi`, `--base-url https://api.beatapi.io/v1`, `--model deepseek-v4.1-flash-free`.
 
 ```bash
 curl http://localhost:20128/v1/chat/completions \

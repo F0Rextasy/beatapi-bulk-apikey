@@ -21,7 +21,7 @@
 [![OmniRoute](https://img.shields.io/badge/OmniRoute-connector-8B5CF6?style=for-the-badge)](#-connect-to-omniroute)
 [![X](https://img.shields.io/badge/X-%40bigbullapp-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/bigbullapp)
 
-[🛠 Hızlı başlangıç](#-quick-start) · [🎁 Ücretsiz katman](#-free-tier--how-much-you-get) · [🤖 Modeller](#-models--all-43-of-them) · [🧪 API'yi kullanın](#-how-to-use-the-api) · [✅ Doğrulandı](#-verified-working--every-key-is-tested) · [🧭 Nasıl çalışır](#-how-it-works) · [🔌 9Router](#-connect-to-9router) · [🔌 OmniRoute](#-connect-to-omniroute) · [⚙️ Seçenekler](#️-cli-options) · [🛰️ Proxy'ler](#️-behind-a-proxy) · [🐞 Sorunlar](#-issues)
+[🛠 Hızlı başlangıç](#-quick-start) · [🎁 Ücretsiz katman](#-free-tier--how-much-you-get) · [🤖 Modeller](#-models--all-43-of-them) · [🧪 API'yi kullanma](#-how-to-use-the-api) · [✅ Doğrulandı](#-verified-working--every-key-is-tested) · [🧭 Nasıl çalışır](#-how-it-works) · [🔌 9Router](#-connect-to-9router) · [🔌 OmniRoute](#-connect-to-omniroute) · [⚙️ Seçenekler](#️-cli-options) · [🛰️ Proxy'ler](#️-behind-a-proxy) · [🐞 Sorunlar](#-issues)
 
 </div>
 
@@ -35,43 +35,43 @@
 
 ## 🎁 Ücretsiz katman — ne kadar alırsınız
 
-**Her yeni BeatAPI hesabı 7 `-free` modeli alır — kart gerekmez; ücretli modeller aynı hesapta kredi gerektirir.**
+**Her yeni BeatAPI hesabı 7 adet `-free` modeli alır — kart gerekmez; ücretli modeller için aynı hesapta kredi gerekir.**
 
 | Ne | Değer |
 | --- | --- |
-| Ücretsiz katman modelleri | Listelenen 43 kimlikten **7'si** yepyeni, bakiye yüklenmemiş bir hesapta yanıt verir |
-| Ücretsiz model limiti (ölçülen) | **pencere başına ücretsiz model başına bir başarılı istek** — sonraki çağrı `429 this model allows at most 1 successful requests …` yanıtını verir |
+| Ücretsiz katman modelleri | Listelenen 43 id'den **7'si** yepyeni, kredisiz bir hesapta yanıt verir |
+| Ücretsiz model limiti (ölçülen) | **ücretsiz model başına pencere başına bir başarılı istek** — sonraki çağrı `429 this model allows at most 1 successful requests …` yanıtını verir |
 | Ücretli modeller | Hesaba bakiye yükleyene kadar `402 Insufficient balance` yanıtını verir |
 | Kart gerekli mi | Kayıt için **Hayır** |
 | Kayıt posta kutusu | Yalnızca `gmail.com` / `qq.com` / `yahoo.com` / `icloud.com` — ve noktalar yok sayılır (`first.last@` ile `firstlast@` aynı adrestir) |
-| Ölçeklenen birim | **bir hesap = bir anahtar** → `--count N` size N hesap verir, her birinin kendi ücretsiz model penceresi ve kendi kredi bakiyesi vardır |
+| Ölçeklenen birim | **bir hesap = bir anahtar** → `--count N` size N hesap verir; her birinin kendi ücretsiz model penceresi ve kendi kredi bakiyesi vardır |
 
-**Ücretsiz katman model kimlikleri**
+**Ücretsiz katman model id'leri**
 
 | Model | Notlar |
 | --- | --- |
 | `deepseek-v4.1-flash-free` | burada canlı doğrulama için kullanılan model |
 | `deepseek-v4-flash-0731-free` | DeepSeek flash |
-| `gemini-3.8-flash-free` | ağ geçidi tarafından sunulan Google ailesi kimliği |
+| `gemini-3.8-flash-free` | ağ geçidi tarafından sunulan Google ailesi id'si |
 | `glm-5.3-free`, `glm-5.3-flash-free` | GLM 5.3 ailesi |
-| `gpt-6.1-sol-free` | OpenAI ailesi kimliği |
+| `gpt-6.1-sol-free` | OpenAI ailesi id'si |
 | `jev-1.13-free` | Jev |
 
-> 💡 Miktarlar ve pencereler BeatAPI tarafından belirlenir ve değişebilir (fiyatlandırma sayfası ayrıca 48 modele ulaşan bir kayıt kredisi ve 7 ücretsiz modelin "sınırlı bir süre" çalıştığını belirtir). Kendi dosyanızı istediğiniz zaman yeniden doğrulayın:
+> 💡 Miktarlar ve pencereler BeatAPI tarafından belirlenir ve değişebilir (fiyatlandırma sayfası ayrıca 48 modele ulaşan bir kayıt kredisinden ve 7 ücretsiz modelin "sınırlı bir süre" çalıştığından söz eder). Kendi dosyanızı istediğiniz zaman yeniden doğrulayın:
 
 ```bash
-node cli.js --verify-only keys.txt   # re-check a whole list
+node src/cli.js --verify-only keys.txt   # tüm listeyi yeniden kontrol et
 ```
 
-> 💡 Ücretsiz katman BeatAPI tarafından belirlenir ve değişebilir. Canlı sayıları [beatapi.io](https://beatapi.io) adresinden kontrol edin — ve aracın kendi kapısının karar vermesine izin verin:
+> 💡 Ücretsiz katman BeatAPI tarafından belirlenir ve değişebilir. Canlı sayıları [beatapi.io](https://beatapi.io) adresinden kontrol edin — ve kararı aracın kendi kapısına bırakın:
 
 ```bash
-node src/cli.js --verify-only     # every key in keys.txt is re-tested with a real chat call
+node src/cli.js --verify-only     # keys.txt içindeki her anahtar gerçek bir sohbet çağrısıyla yeniden test edilir
 ```
 
 ## 🤖 Modeller — 43'ünün tamamı
 
-Oluşturulmuş bir anahtarla `GET https://api.beatapi.io/v1/models` **43 model** döndürür, bunların **7'si ücretsiz katmandadır**. Kalan 36'sı bakiye yüklenmemiş bir hesapta `402 Insufficient balance` yanıtını verir — anahtar geçerlidir, hesabın kredisi yoktur.
+Oluşturulmuş bir anahtarla `GET https://api.beatapi.io/v1/models` **43 model** döndürür; bunlardan **7'si ücretsiz katmandadır**. Kalan 36'sı kredisiz bir hesapta `402 Insufficient balance` yanıtını verir — anahtar geçerlidir, hesabın kredisi yoktur.
 
 ```bash
 curl https://api.beatapi.io/v1/models -H "Authorization: Bearer <one of your keys>"
@@ -111,20 +111,20 @@ cd beatapi-bulk-apikey
 printf 'http://127.0.0.1:8080\n' > proxies.txt
 
 # 2) go
-node launcher.js                              # interactive
+node src/launcher.js                          # interactive
 # or directly:
-node cli.js --count 30 --out keys.txt --proxy-file proxies.txt
+node src/cli.js --count 30 --out keys.txt --proxy-file proxies.txt
 ```
 
-`keys.txt` **yalnızca** `GET /v1/usage` yeni anahtarla 200 yanıtını verdikten sonra yazılır, böylece içindeki her satır sağlayıcının kendi API'sine karşı kimlik doğrulaması yapmış bir anahtardır.
+`keys.txt` **yalnızca** `GET /v1/usage` yeni anahtarla 200 yanıtı verdikten sonra yazılır; böylece içindeki her satır sağlayıcının kendi API'sine karşı kimlik doğrulamış bir anahtardır.
 
 ### 🖱️ Başlatıcı
 
 ```bash
-node launcher.js
+node src/launcher.js
 ```
 
-Kaç anahtar istediğinizi, çıktı dosyasını, anahtar adı önekini, hesaplar arasındaki duraklamayı ve isteğe bağlı bir proxy / proxy listesini sorar, yanıtları `launcher.config.json` içinde hatırlar ve ardından aracı çalıştırır. Menü: **1) Anahtar oluştur · 2) Anahtarları doğrula · 3) Ayarlar · 4) Yardım · q) Çıkış**.
+Kaç anahtar istediğinizi ve hangi proxy listesini kullanacağınızı sorar, yanıtları `launcher.config.json` içinde hatırlar ve ardından aracı doğru bayraklarla çalıştırır. Menü: **1) Anahtar oluştur · 2) Anahtarları doğrula · 3) Ayarlar · 4) Yardım · 5) 9Router'a bağlan · 6) OmniRoute'a bağlan · q) Çıkış**.
 
 ## ✅ Çalıştığı doğrulandı — her anahtar test edilir
 
@@ -132,14 +132,14 @@ Bir anahtar `keys.txt` dosyasına ancak sağlayıcının kendi API'si onunla yan
 
 | Kontrol | Sonuç |
 | --- | --- |
-| `GET https://api.beatapi.io/v1/usage` — oluşturulduktan hemen sonra **her** anahtar için otomatik olarak çalıştırılır | **HTTP 200**, `data.object: "usage"` |
+| `GET https://api.beatapi.io/v1/usage` — oluşturulduktan hemen sonra **her** anahtar için otomatik çalıştırılır | **HTTP 200**, `data.object: "usage"` |
 | `--verify-only` ile tüm listenin yeniden kontrolü (ayrı hesaplardan anahtarlar) | **8/8 → 200** (`PSofZD…d4Cu`, `25Mcg6…FLhU`, `FIBhQQ…3f2d`, `Due4H4…ISxD`, …) |
 | Bir `-free` modelde `POST https://api.beatapi.io/v1/chat/completions` | **HTTP 200**, gerçek tamamlama (`deepseek-v4.1-flash-free`) |
 | Yeni bir hesapta ücretli model | `402 Insufficient balance` — *anahtar* geçerlidir, *hesabın* krediye ihtiyacı vardır |
 
 > Bir anahtar **yalnızca bir kez**, oluşturulma anında gösterilir: panel maskelenmiş biçimde yanıt verir (`x9ZX**********2erY`) ve gerçek anahtar yalnızca `POST /api/beat/account/keys/{id}/key` üzerinden gelir. Araç bu uç noktayı hemen çağırır ve sonucu doğrudan diske yazar.
 
-> **Kalite kapıları.** Buradaki her anahtar `keys.txt` dosyasına yazılmadan önce canlı bir `chat-200` geçti
+> **Kalite kapıları.** Buradaki her anahtar, `keys.txt` dosyasına yazılmadan önce canlı bir `chat-200` testini geçti
 > (ölü anahtarlar asla gönderilmez). Yönlendirici kombinasyonları model düzeyinde aynı kuralı izler: bir giriş
 > **yalnızca model `chat-200` yanıtı veriyorsa ve araçları çağırabiliyorsa** eklenir — araç desteği olmayan bir model,
 > ölü bir anahtar veya ölü bir sağlayıcı eklenmek yerine çıkarılır. Doğrulama adımını istediğiniz zaman yeniden çalıştırın;
@@ -160,20 +160,20 @@ inbox (one address per account)                                  a fresh address
 | --- | --- | --- |
 | posta kutusu | `GET /api/verification?email=…` | kodu `gmail.com` / `qq.com` / `yahoo.com` / `icloud.com` adresine gönderir |
 | kayıt | `POST /api/user/register?turnstile=` | kod + parola |
-| giriş anahtarı | `GET /api/user/login/encryption-key` | RSA-OAEP anahtar kimliği |
+| giriş anahtarı | `GET /api/user/login/encryption-key` | RSA-OAEP anahtar id'si |
 | giriş | `POST /api/user/login?turnstile=` | `password_encrypted` |
 | anahtar oluşturma | `POST /api/beat/account/keys` | **maskelenmiş** bir anahtar döndürür |
-| anahtar açığa çıkarma | `POST /api/beat/account/keys/{id}/key` | gerçek anahtar — bir kez gösterilir |
-| kanıtla | `GET /v1/usage` | `200`, anahtarın canlı olduğu anlamına gelir |
+| anahtarı açığa çıkarma | `POST /api/beat/account/keys/{id}/key` | gerçek anahtar — bir kez gösterilir |
+| kanıtla | `GET /v1/usage` | `200` anahtarın canlı olduğu anlamına gelir |
 
-**Önceden bilmeye değer iki sağlayıcı tarafı notu.** Kayıt adresi `gmail.com` / `qq.com` / `yahoo.com` / `icloud.com` posta kutusu olmalıdır ve noktalar yok sayılır (`first.last@` ile `firstlast@` aynı adrestir, bu da *"Email address is already in use"* yanıtını verir) — bir posta kutusu geçin ve noktasız biçiminde kalın. Ve BeatAPI kendi doğrulama postasını gönderir: bir günde çok fazla kayıttan sonra `550 You have reached your daily email sending quota` yanıtını verir, bu da yeni kayıtların ertesi gün devam ettiği anlamına gelir — halihazırda sahip olduğunuz anahtarlar çalışmaya devam eder.
+**Baştan bilinmesi gereken iki sağlayıcı tarafı notu.** Kayıt adresi `gmail.com` / `qq.com` / `yahoo.com` / `icloud.com` posta kutusu olmalıdır ve noktalar yok sayılır (`first.last@` ile `firstlast@` aynı adrestir, bu da *"Email address is already in use"* yanıtını verir) — bir posta kutusu verin ve onun noktasız biçiminde kalın. Ayrıca BeatAPI kendi doğrulama postasını gönderir: bir günde çok sayıda kayıttan sonra `550 You have reached your daily email sending quota` yanıtını verir; bu, yeni kayıtların ertesi gün devam edeceği anlamına gelir — hâlihazırda sahip olduğunuz anahtarlar çalışmaya devam eder.
 
 ## ⚙️ CLI seçenekleri
 
 ```bash
-node cli.js --count 30 --out keys.txt --proxy-file proxies.txt
-node cli.js --verify-only keys.txt    # re-check a whole list
-node cli.js --help
+node src/cli.js --count 30 --out keys.txt --proxy-file proxies.txt
+node src/cli.js --verify-only keys.txt    # re-check a whole list
+node src/cli.js --help
 ```
 
 | Seçenek | Varsayılan | Anlamı |
@@ -181,23 +181,23 @@ node cli.js --help
 | `--count <n>` | `30` | listenin sonunda kaç anahtar olması gerektiği |
 | `--out <file>` | `keys.txt` | anahtar listesi, **her satırda bir anahtar** |
 | `--accounts <file>` | `<out>.accounts.json` | hesap kayıtları (posta kutusu / kullanıcı / parola) |
-| `--prefix <name>` | `beatapi-bulk` | kontrol panelinde gösterilen anahtar adı öneki |
-| `--delay <ms>` | `16000` | hesaplar arasındaki duraklama |
-| `--proxy <url>` | `$BEATAPI_PROXY` | her istek için tek HTTP(S)/SOCKS proxy |
+| `--prefix <name>` | `beatapi-bulk` | panoda gösterilen anahtar adı öneki |
+| `--delay <ms>` | `16000` | hesaplar arası bekleme |
+| `--proxy <url>` | `$BEATAPI_PROXY` | her istek için tek HTTP(S)/SOCKS proxy'si |
 | `--proxy-file <f>` | — | her satırda bir proxy, **hesap başına döndürülür** |
 | `--no-verify` | kapalı | `GET /v1/usage` kontrolünü atla (önerilmez) |
 | `--verify-only <f>` | — | bir listedeki her anahtarı yeniden kontrol et ve çık |
 | `-h, --help` | | kullanım |
 
-`--out` içinde zaten bulunan anahtarlar `--count` değerine sayılır, böylece yeniden çalıştırma yalnızca eksik olanı ekler.
+`--out` içinde zaten bulunan anahtarlar `--count` değerine sayılır, böylece yeniden çalıştırma yalnızca eksik olanları ekler.
 
 ## 🛰️ Proxy arkasında
 
-**Çalıştırmanın önüne bir çıkış koyun.** Anahtar başına bir hesap, anahtar başına bir kayıt anlamına gelir ve BeatAPI kayıtları adres başına sınırlar (ölçülen: *20 istek / 20 dakika*) — bir proxy listesini döndürmek her hesaba temiz bir çalıştırma sağlar ve araç, limit yine de tetiklendiğinde hesabı yakmak yerine `429 … retry_after_seconds` yanıtını bekler.
+**Çalıştırmanın önüne bir çıkış koyun.** Anahtar başına bir hesap, anahtar başına bir kayıt anlamına gelir ve BeatAPI kayıtları adres başına sınırlar (ölçülen: *20 istek / 20 dakika*) — bir proxy listesini döndürmek her hesaba temiz bir çalışma sağlar ve araç, limit yine de aşılırsa hesabı harcamak yerine `429 … retry_after_seconds` yanıtını bekler.
 
 ```bash
-node cli.js --count 30 --out keys.txt --proxy-file proxies.txt   # one proxy per line, rotated
-node cli.js --count 1  --out keys.txt --proxy socks5://127.0.0.1:1080
+node src/cli.js --count 30 --out keys.txt --proxy-file proxies.txt   # one proxy per line, rotated
+node src/cli.js --count 1  --out keys.txt --proxy socks5://127.0.0.1:1080
 ```
 
 ## 📄 Dosyalar
@@ -208,11 +208,11 @@ node cli.js --count 1  --out keys.txt --proxy socks5://127.0.0.1:1080
 | `keys.accounts.json` | hesap kayıtları (posta kutusu / kullanıcı / parola) — git tarafından yok sayılır |
 | `proxies.txt` | çıkış havuzunuz, her satırda bir proxy — git tarafından yok sayılır |
 | `launcher.config.json` | başlatıcının hatırladıkları — git tarafından yok sayılır |
-| `cli.js` · `launcher.js` · `proxy.js` | anahtar oluşturma aracı, etkileşimli menü ve proxy döndürme |
+| `src/cli.js` · `src/launcher.js` · `src/proxy.js` | anahtar oluşturma aracı, etkileşimli menü ve proxy döndürme |
 
-## 🔌 9Router'a bağlanın
+## 🔌 9Router'a bağlan
 
-[9Router](https://9router.com) kendi kendine barındırılan, OpenAI uyumlu bir yönlendiricidir. BeatAPI, `https://api.beatapi.io/v1` adresinde düz OpenAI sunar, böylece bağlayıcı **bir `openai-compatible` sağlayıcı düğümü** (önek `beatapi`) kaydeder ve `keys.txt` içindeki her anahtarı bir bağlantı olarak ekler — `beatapi-001`, `beatapi-002`, … Yeniden çalıştırmak etkisizdir (idempotent).
+[9Router](https://9router.com) kendi sunucunuzda barındırılan, OpenAI uyumlu bir yönlendiricidir. BeatAPI, `https://api.beatapi.io/v1` adresinde düz OpenAI sunar; bu nedenle bağlayıcı **bir `openai-compatible` sağlayıcı düğümü** (önek `beatapi`) kaydeder ve `keys.txt` içindeki her anahtarı bir bağlantı olarak ekler — `beatapi-001`, `beatapi-002`, … Yeniden çalıştırmak etkisizdir (idempotent).
 
 ```bash
 node src/connect-9router.js                    # every key in keys.txt
@@ -228,9 +228,9 @@ curl http://localhost:20128/v1/chat/completions \
   -d '{"model":"beatapi/deepseek-v4.1-flash-free","messages":[{"role":"user","content":"hi"}]}'
 ```
 
-## 🔌 OmniRoute'a bağlanın
+## 🔌 OmniRoute'a bağlan
 
-[OmniRoute](https://omniroute.online) kendi kendine barındırılan, OpenAI uyumlu bir yönlendiricidir. Bağlayıcı orada da aynı işi yapar — bir `openai-compatible` düğümü (önek `beatapi`), `keys.txt` içindeki her anahtar için bir bağlantı:
+[OmniRoute](https://omniroute.online) kendi sunucunuzda barındırılan, OpenAI uyumlu bir yönlendiricidir. Bağlayıcı orada da aynı işi yapar — bir `openai-compatible` düğümü (önek `beatapi`), `keys.txt` içindeki her anahtar için bir bağlantı:
 
 ```bash
 node src/connect-omniroute.js                  # every key in keys.txt
@@ -251,8 +251,8 @@ curl http://localhost:20128/v1/chat/completions \
 | | |
 | --- | --- |
 | 🏢 Sağlayıcı | **BeatAPI** — [beatapi.io](https://beatapi.io) |
-| 🎁 Sağlayıcının verdikleri | anahtar başına bir yeni hesap — 43 model, bunların 7'si ücretsiz katman, her anahtar sağlayıcının kendi API'sinde kanıtlanmış |
-| 🔑 Bir anahtar size ne kazandırır | kendi hesabına kapsanmış bir API anahtarı: aşağıdaki uç noktada 43 model kimliği, planınızın limitlerinde. Kota **hesapta** bulunur, bu aracın anahtar başına bir hesap oluşturmasının nedeni tam da budur |
+| 🎁 Sağlayıcının verdikleri | anahtar başına bir yeni hesap — 43 model, bunlardan 7'si ücretsiz katman, her anahtar sağlayıcının kendi API'sinde kanıtlanmış |
+| 🔑 Bir anahtar size ne kazandırır | kendi hesabına kapsanmış bir API anahtarı: aşağıdaki uç noktada 43 model id'si, planınızın limitlerinde. Kota **hesapta** bulunur, bu aracın anahtar başına bir hesap oluşturmasının nedeni tam da budur |
 | 🌐 API biçimi | OpenAI uyumlu: `POST https://api.beatapi.io/v1/chat/completions` |
 | 🔒 Verileriniz | yalnızca beatapi.io ve yapılandırdığınız posta kutusu arka ucuna bağlanılır; anahtarlar makinenizde kalır |
 

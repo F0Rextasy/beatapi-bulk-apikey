@@ -60,7 +60,7 @@
 > 💡 Amounts and windows are set by BeatAPI and can change (its pricing page also notes a sign-up credit reaching 48 models, and the 7 free models running "for a limited time"). Re-prove your own file at any time:
 
 ```bash
-node cli.js --verify-only keys.txt   # re-check a whole list
+node src/cli.js --verify-only keys.txt   # re-check a whole list
 ```
 
 > 💡 The free tier is set by BeatAPI and can change. Check the live numbers at [beatapi.io](https://beatapi.io) — and let the tool's own gate decide:
@@ -110,9 +110,9 @@ cd beatapi-bulk-apikey
 printf 'http://127.0.0.1:8080\n' > proxies.txt
 
 # 2) go
-node launcher.js                              # interactive
+node src/launcher.js                          # interactive
 # or directly:
-node cli.js --count 30 --out keys.txt --proxy-file proxies.txt
+node src/cli.js --count 30 --out keys.txt --proxy-file proxies.txt
 ```
 
 `keys.txt` is written **only** after `GET /v1/usage` answers 200 with the new key, so every line in it is a key that authenticated against the provider's own API.
@@ -120,10 +120,10 @@ node cli.js --count 30 --out keys.txt --proxy-file proxies.txt
 ### 🖱️ The launcher
 
 ```bash
-node launcher.js
+node src/launcher.js
 ```
 
-It asks how many keys you want, the output file, the key-name prefix, the pause between accounts and an optional proxy / proxy-list, remembers the answers in `launcher.config.json`, and then runs the tool. Menu: **1) Mint keys · 2) Verify keys · 3) Settings · 4) Help · q) Quit**.
+It asks how many keys you want and which proxy list to use, remembers the answers in `launcher.config.json`, and then runs the tool with the right flags. Menu: **1) Mint keys · 2) Verify keys · 3) Settings · 4) Help · 5) Connect to 9Router · 6) Connect to OmniRoute · q) Quit**.
 
 ## ✅ Verified working — every key is tested
 
@@ -170,9 +170,9 @@ inbox (one address per account)                                  a fresh address
 ## ⚙️ CLI options
 
 ```bash
-node cli.js --count 30 --out keys.txt --proxy-file proxies.txt
-node cli.js --verify-only keys.txt    # re-check a whole list
-node cli.js --help
+node src/cli.js --count 30 --out keys.txt --proxy-file proxies.txt
+node src/cli.js --verify-only keys.txt    # re-check a whole list
+node src/cli.js --help
 ```
 
 | Option | Default | Meaning |
@@ -195,8 +195,8 @@ Keys already present in `--out` count towards `--count`, so re-running adds only
 **Put an exit in front of the run.** One account per key means one registration per key, and BeatAPI rate-limits registrations per address (measured: *20 requests / 20 minutes*) — rotating a proxy list gives every account a clean run, and the tool waits out a `429 … retry_after_seconds` instead of burning the account when the limit still trips.
 
 ```bash
-node cli.js --count 30 --out keys.txt --proxy-file proxies.txt   # one proxy per line, rotated
-node cli.js --count 1  --out keys.txt --proxy socks5://127.0.0.1:1080
+node src/cli.js --count 30 --out keys.txt --proxy-file proxies.txt   # one proxy per line, rotated
+node src/cli.js --count 1  --out keys.txt --proxy socks5://127.0.0.1:1080
 ```
 
 ## 📄 Files
@@ -207,7 +207,7 @@ node cli.js --count 1  --out keys.txt --proxy socks5://127.0.0.1:1080
 | `keys.accounts.json` | account records (mailbox / user / password) — git-ignored |
 | `proxies.txt` | your exit pool, one proxy per line — git-ignored |
 | `launcher.config.json` | what the launcher remembers — git-ignored |
-| `cli.js` · `launcher.js` · `proxy.js` | the minting tool, the interactive menu and the proxy rotation |
+| `src/cli.js` · `src/launcher.js` · `src/proxy.js` | the minting tool, the interactive menu and the proxy rotation |
 
 ## 🔌 Connect to 9Router
 
