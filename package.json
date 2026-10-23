@@ -1,7 +1,7 @@
 {
   "name": "beatapi-bulk-apikey",
   "version": "1.0.0",
-  "description": "mint BeatAPI keys — one fresh account per key, verified, any number",
+  "description": "Bulk-create BeatAPI accounts with auto-generated API keys — OpenAI-compatible inference (43 models, 7 free-tier) + 9Router-ready endpoint.",
   "license": "MIT",
   "type": "commonjs",
   "bin": {
@@ -14,7 +14,9 @@
   },
   "scripts": {
     "start": "node src/launcher.js",
-    "mint": "node src/cli.js"
+    "mint": "node src/cli.js",
+    "9router": "node src/connect-9router.js",
+    "omniroute": "node src/connect-omniroute.js"
   },
   "keywords": [
     "api-key",
@@ -25,9 +27,7 @@
     "apikey"
   ],
   "files": [
-    "src/cli.js",
-    "src/launcher.js",
-    "src/proxy.js",
+    "src",
     "README.md",
     "LICENSE"
   ]

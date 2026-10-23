@@ -1,26 +1,32 @@
 #!/usr/bin/env node
 'use strict';
+
 /**
- * Interactive launcher for beatapi-bulk-apikey.
+ * Interactive launcher for the compiled build.
  *
- * It asks for the few things the CLI needs, remembers them in
- * `launcher.config.json` (current directory, git-ignored) and then runs
- * `src/cli.js` with those answers.
+ * The CLI's options stay configurable without reading its source: this launcher
+ * asks for them, remembers the answers in `launcher.config.json`, and then runs
+ * the CLI with the right flags — including the proxy list, which is the setting
+ * people most often need and cannot guess.
+ *
+ * Usage: node src/launcher.js            (menu)
+ *        node src/launcher.js --help
  */
+
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const { spawnSync } = require('child_process');
 
-const CONFIG = path.join(process.cwd(), 'launcher.config.json');
+const ROOT = path.resolve(__dirname, '..');
+const CONFIG = path.join(ROOT, 'launcher.config.json');
 const CLI = path.join(__dirname, 'cli.js');
+
 const defaults = {
-  count: 30,
-  out: 'keys.txt',
-  prefix: 'beatapi-bulk',
-  delay: 16000,
-  proxy: process.env.BEATAPI_PROXY || '',
-  proxyFile: '',
+  count: 50,
+  proxyFile: process.env.BEATAPI_PROXIES || 'proxies.txt',
+  routerBase: 'http://localhost:20128',
+  routerPassword: '123456',
 };
 
 function loadConfig() {
@@ -31,97 +37,144 @@ function loadConfig() {
   }
 }
 
-function saveConfig(config) {
+function saveConfig(cfg) {
   try {
-    fs.writeFileSync(CONFIG, JSON.stringify(config, null, 2) + '\n');
-  } catch (err) {
-    console.error(`  ! could not write ${path.basename(CONFIG)}: ${err.message}`);
+    fs.writeFileSync(CONFIG, JSON.stringify(cfg, null, 2) + '\n');
+  } catch (e) {
+    console.error(`  ! could not write ${path.basename(CONFIG)}: ${e.message}`);
   }
 }
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const ask = (question, fallback) =>
   new Promise((resolve) => {
-    const shown = fallback ? ` [${String(fallback).slice(0, 30)}${String(fallback).length > 30 ? '…' : ''}]` : '';
-    rl.question(`  ${question}${shown}: `, (answer) => resolve(answer.trim() || fallback || ''));
+    const hint = fallback ? ` [${String(fallback).slice(0, 30)}${String(fallback).length > 30 ? '…' : ''}]` : '';
+    rl.question(`  ${question}${hint}: `, (answer) => resolve(answer.trim() || fallback || ''));
   });
 
-function run(args) {
+function run(args, env = {}) {
   console.log('');
-  const child = spawnSync(process.execPath, [CLI, ...args], { cwd: process.cwd(), stdio: 'inherit' });
-  if (child.status !== 0) console.log(`  ! exited with code ${child.status}`);
+  const res = spawnSync(process.execPath, [CLI, ...args], {
+    windowsHide: true,
+    cwd: ROOT,
+    stdio: 'inherit',
+    env: { ...process.env, ...env },
+  });
+  if (res.status !== 0) console.log(`  ! exited with code ${res.status}`);
 }
 
 const BANNER_LOGO = String.raw`
-███████╗ ██████╗ ██████╗ ███████╗██╗  ██╗████████╗ █████╗ ███████╗██╗   ██╗
-██╔════╝██╔═████╗██╔══██╗██╔════╝╚██╗██╔╝╚══██╔══╝██╔══██╗██╔════╝╚██╗ ██╔╝
-█████╗  ██║██╔██║██████╔╝█████╗   ╚███╔╝    ██║   ███████║███████╗ ╚████╔╝
-██╔══╝  ████╔╝██║██╔══██╗██╔══╝   ██╔██╗    ██║   ██╔══██║╚════██║  ╚██╔╝
-██║     ╚██████╔╝██║  ██║███████╗██╔╝ ██╗   ██║   ██║  ██║███████║   ██║
-╚═╝      ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝   ╚═╝
+██████╗ ███████╗ █████╗ ████████╗ █████╗ ██████╗ ██╗
+██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗██║
+██████╔╝█████╗  ███████║   ██║   ███████║██████╔╝██║
+██╔══██╗██╔══╝  ██╔══██║   ██║   ██╔══██║██╔═══╝ ██║
+██████╔╝███████╗██║  ██║   ██║   ██║  ██║██║     ██║
+╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝     ╚═╝
 `;
 
 function banner() {
   const cyan = '\x1b[36m';
-  const dim = '\u001b[2m';
+  const dim = '\x1b[2m';
   const bold = '\x1b[1m';
-  const reset = '\u001b[0m';
+  const reset = '\x1b[0m';
+  const title = 'beatapi-bulk-apikey';
+  const tagline = "one fresh account per key — 43 models, 7 of them free-tier, every key proven on the provider's own API";
   const lines = BANNER_LOGO.replace(/^\n/, '').replace(/\n$/, '').split('\n');
-  const width = Math.max(...lines.map((line) => [...line].length));
-  const pad = (text) => text + ' '.repeat(width - [...text].length);
+  const width = Math.max(...lines.map((l) => [...l].length), [...title].length, [...tagline].length);
+  const pad = (s) => s + ' '.repeat(width - [...s].length);
   const inner = width + 4;
   console.log('');
-  console.log(cyan + '╔' + '═'.repeat(inner) + '╗' + reset);
-  console.log(cyan + '║' + ' '.repeat(inner) + '║' + reset);
-  for (const line of lines) console.log(cyan + '║' + reset + '  ' + bold + pad(line) + reset + '  ' + cyan + '║' + reset);
-  console.log(cyan + '║' + ' '.repeat(inner) + '║' + reset);
-  console.log(cyan + '║' + reset + '  ' + pad('beatapi-bulk-apikey') + '  ' + cyan + '║' + reset);
-  console.log(cyan + '║' + reset + '  ' + dim + pad('mint BeatAPI keys, one fresh account per key') + reset + '  ' + cyan + '║' + reset);
-  console.log(cyan + '║' + ' '.repeat(inner) + '║' + reset);
-  console.log(cyan + '╚' + '═'.repeat(inner) + '╝' + reset);
-  console.log('  ' + dim + 'github.com/F0Rextasy · x.com/bigbullapp' + reset);
+  console.log(`${cyan}╔${'═'.repeat(inner)}╗${reset}`);
+  console.log(`${cyan}║${' '.repeat(inner)}║${reset}`);
+  for (const line of lines) console.log(`${cyan}║${reset}  ${bold}${pad(line)}${reset}  ${cyan}║${reset}`);
+  console.log(`${cyan}║${' '.repeat(inner)}║${reset}`);
+  console.log(`${cyan}║${reset}  ${pad(title)}  ${cyan}║${reset}`);
+  console.log(`${cyan}║${reset}  ${dim}${pad(tagline)}${reset}  ${cyan}║${reset}`);
+  console.log(`${cyan}║${' '.repeat(inner)}║${reset}`);
+  console.log(`${cyan}╚${'═'.repeat(inner)}╝${reset}`);
+  console.log(`  ${dim}beatapi-bulk-apikey contributors${reset}`);
   console.log('');
 }
 
-async function mintFlow(config) {
-  config.count = parseInt(await ask('How many keys in the list', config.count), 10) || config.count;
-  config.out = await ask('Key list file (one key per line)', config.out);
-  config.prefix = await ask('Key name prefix', config.prefix);
-  config.delay = parseInt(await ask('Pause between accounts, ms', config.delay), 10) || config.delay;
-  config.proxy = await ask('Single HTTP proxy (host:port, blank = none)', config.proxy);
-  config.proxyFile = await ask('Proxy list file (one per line, rotated per account)', config.proxyFile);
-  saveConfig(config);
-  const args = ['--count', String(config.count), '--out', config.out, '--prefix', config.prefix, '--delay', String(config.delay)];
-  if (config.proxyFile && fs.existsSync(config.proxyFile)) args.push('--proxy-file', config.proxyFile);
-  else if (config.proxy) args.push('--proxy', config.proxy);
-  run(args);
+async function mintFlow(cfg) {
+  cfg.count = parseInt(await ask('How many accounts/keys do you want (any number)', cfg.count), 10) || cfg.count;
+  cfg.proxyFile = await ask('Proxy list file (one proxy per line)', cfg.proxyFile);
+  saveConfig(cfg);
+
+  if (!fs.existsSync(path.resolve(ROOT, cfg.proxyFile)) && !fs.existsSync(cfg.proxyFile)) {
+    console.log(`  ! ${cfg.proxyFile} not found — running WITHOUT a proxy (direct)`);
+    console.log('    (put one exit per line there to route through proxies: http://host:port, socks5://host:port or host:port)');
+  }
+  run(['--count', String(cfg.count), '--out', 'keys.txt', '--proxy-file', cfg.proxyFile]);
 }
 
-async function verifyFlow(config) {
-  const file = await ask('Key list to verify', config.out);
-  if (!fs.existsSync(file)) {
-    console.log(`  ! ${file} not found`);
-    return;
+async function verifyFlow(cfg) {
+  cfg.proxyFile = await ask('Proxy list file', cfg.proxyFile);
+  saveConfig(cfg);
+  run(['--verify-only', 'keys.txt', '--proxy-file', cfg.proxyFile]);
+}
+
+async function connectFlow(cfg) {
+  const { connectKeysFile, connect9Router } = require('./connect-9router.js');
+  cfg.routerBase = await ask('9Router base URL', cfg.routerBase);
+  cfg.routerPassword = await ask('9Router password', cfg.routerPassword);
+  saveConfig(cfg);
+  console.log('');
+  try {
+    await connectKeysFile({ base: cfg.routerBase, password: cfg.routerPassword });
+  } catch (e) {
+    if (!/no API keys/.test(e.message)) throw e;
+    console.log(`  ! ${e.message}`);
+    const apiKey = await ask('Single BeatAPI key to register');
+    if (apiKey) await connect9Router({ base: cfg.routerBase, password: cfg.routerPassword, apiKey });
   }
-  const args = ['--verify-only', file];
-  if (config.proxyFile && fs.existsSync(config.proxyFile)) args.push('--proxy-file', config.proxyFile);
-  else if (config.proxy) args.push('--proxy', config.proxy);
-  run(args);
+}
+
+async function connectFlowOmni(cfg) {
+  const { connectKeysFile, connectOmniRoute } = require('./connect-omniroute.js');
+  cfg.routerBase = await ask('OmniRoute base URL', cfg.routerBase);
+  cfg.routerPassword = await ask('OmniRoute password', cfg.routerPassword);
+  saveConfig(cfg);
+  console.log('');
+  try {
+    await connectKeysFile({ base: cfg.routerBase, password: cfg.routerPassword });
+  } catch (e) {
+    if (!/no API keys/.test(e.message)) throw e;
+    console.log(`  ! ${e.message}`);
+    const apiKey = await ask('Single BeatAPI key to register');
+    if (apiKey) await connectOmniRoute({ base: cfg.routerBase, password: cfg.routerPassword, apiKey });
+  }
 }
 
 async function main() {
-  const config = loadConfig();
+  const cfg = loadConfig();
+  if (process.argv.includes('--connect-9router')) {
+    await connectFlow(cfg);
+    rl.close();
+    return;
+  }
+
+  if (process.argv.includes('--connect-omniroute')) {
+    await connectFlowOmni(cfg);
+    rl.close();
+    return;
+  }
   banner();
-  console.log('  1) Mint keys      — create a fresh list, one account per key');
-  console.log('  2) Verify keys    — check every key in a list (GET /v1/usage)');
+  console.log('  1) Mint keys      — create one account per key and verify each with a live API call');
+  console.log('  2) Verify keys    — re-check every key in keys.txt with a live API call');
   console.log('  3) Settings       — show what this launcher remembers');
   console.log('  4) Help           — CLI options and notes');
+  console.log('  5) Connect to 9Router — register the keys in keys.txt with a local 9Router');
+  console.log('  6) Connect to OmniRoute — register the keys in keys.txt with a local OmniRoute');
   console.log('  q) Quit\n');
   const choice = (await ask('Choose', '1')).toLowerCase();
-  if (choice === '1') await mintFlow(config);
-  else if (choice === '2') await verifyFlow(config);
-  else if (choice === '3') console.log('\n' + JSON.stringify(config, null, 2));
+
+  if (choice === '1') await mintFlow(cfg);
+  else if (choice === '2') await verifyFlow(cfg);
+  else if (choice === '3') console.log('\n' + JSON.stringify(cfg, null, 2));
   else if (choice === '4') run(['--help']);
+  else if (choice === '5') await connectFlow(cfg);
+  else if (choice === '6') await connectFlowOmni(cfg);
   rl.close();
 }
 
@@ -130,7 +183,7 @@ if (process.argv.includes('--help') || process.argv.includes('-h')) {
   process.exit(0);
 }
 
-main().catch((err) => {
-  console.error('[fatal]', err.message);
+main().catch((e) => {
+  console.error('[fatal]', e.message);
   process.exit(1);
 });

@@ -1,14 +1,11 @@
 node_modules/
 
-# credential files — never committed (scanner gate: literal names)
-proxies.txt
-
 # generated material — never commit
 keys.txt
+proxies.txt
 keys.json
 *.txt
 accounts.json
-*.accounts.json
 outputs/
 launcher.config.json
 .env
