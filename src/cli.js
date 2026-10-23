@@ -18,6 +18,21 @@
  * is waited out instead of burning the inbox.
  */
 const crypto = require('crypto');
+/** keys-dead.txt standard: `key<TAB>reason<TAB>ISO`, reason in 401|403|quota|ban.
+ * A 429/5xx/transport failure is never a dead key — it answers null here. */
+function deadReason(status, text = '') {
+  const s = `${status == null ? '' : status} ${text || ''}`;
+  if (/\b429\b|rate.?limit|\b5\d\d\b|timeout|ECONNRESET|ECONNREFUSED|ETIMEDOUT|EHOSTUNREACH|transport|network/i.test(s)) return null;
+  if (/\b401\b|unauthor/i.test(s)) return '401';
+  if (/\b403\b|forbidden/i.test(s)) return '403';
+  if (/\b402\b|quota|insufficient|no credit|out of credit|balance|exhaust/i.test(s)) return 'quota';
+  if (/banned|suspend|deactivat|disabled/i.test(s)) return 'ban';
+  return null;
+}
+/** The standard line (key \t reason \t ISO), or null when the reason is not final. */
+const deadLine = (key, reason) => (reason ? [key, reason, new Date().toISOString()].join('\t') : null);
+/** The key side of a standard line (dedupe helper). */
+const deadKeyOf = (line) => String(line).split(String.fromCharCode(9))[0];
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
@@ -345,13 +360,20 @@ async function verifyOnly(file, proxy) {
       result = { ok: false, status: `network: ${String(err.message).slice(0, 40)}` };
     }
     if (result.ok) good++;
-    else if (/\b(401|402|403)\b/.test(String(result.status))) dead.push(key);
+    else {
+      const reason = deadReason(result.status);
+      if (reason) dead.push({ key, reason });
+    }
     console.log(`    ${result.ok ? '✔' : '✘'} ${key.slice(0, 6)}…${key.slice(-4)}  ${result.status}`);
   }
   console.log(`  verified  : ${good}/${keys.length} key(s) answer 200`);
-  // The API own refusal (401/403) is a dead key: keys-dead.txt beside the file.
+  // The API own refusal (401/403/quota/ban) is a dead key: keys-dead.txt beside
+  // the file, one standard line per key.
   const deadFile = path.join(path.dirname(path.resolve(file)), `keys-dead.txt`);
-  fs.writeFileSync(deadFile, dead.join(`\n`) + (dead.length ? `\n` : ``));
+  // keys-dead.txt standard: key \t reason(401|403|quota|ban) \t new Date().toISOString()
+
+  const deadLines = dead.map((d) => deadLine(d.key, d.reason)).filter(Boolean);
+  fs.writeFileSync(deadFile, deadLines.join(`\n`) + (deadLines.length ? `\n` : ``));
   console.log(`  dead keys : ${dead.length} -> ${deadFile}`);
   return good === keys.length ? 0 : 1;
 }
